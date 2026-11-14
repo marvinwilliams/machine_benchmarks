@@ -1,0 +1,44 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24
+  },
+  "configurePresets": [
+    {
+      "name": "gcc-ninja",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "g++",
+        "WARNING_FLAGS": "-Wall;-Wextra;-Wpedantic;-Wconversion;-Wsign-conversion;-Wshadow;-Wduplicated-branches;-Wduplicated-cond;-Wlogical-op;-Wnull-dereference;-Wuseless-cast;-Wdouble-promotion;-Wold-style-cast;-Wformat=2;-Wundef;-Wcast-align;-Wcast-qual;-Wredundant-decls;-Wnoexcept",
+        "BENCHMARK_ARCH_FLAGS": "-march=native"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release Preset",
+      "inherits": "gcc-ninja",
+      "binaryDir": "build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "experiments",
+      "displayName": "Experiments Preset",
+      "inherits": "release",
+      "binaryDir": "build/experiments"
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug Preset",
+      "inherits": "gcc-ninja",
+      "binaryDir": "build/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS_DEBUG": "-Og -ggdb -fsanitize=address,undefined"
+      }
+    }
+  ]
+}

@@ -33,8 +33,10 @@ using word = std::uint64_t;
 // the stores of write and copy observable, so that the compiler can neither merge nor drop passes.
 // The sum only consumes the loads. Independent partial sums avoid a single chain of dependent adds, which would limit
 // the speed in the caches instead of the loads; the compiler vectorizes them into several independent vector sums.
+// With 16, GCC keeps the loads in ascending address order; with 32, it pairs loads 256 bytes apart, which slows down
+// single-threaded streaming from memory on AMD Zen 4.
 [[gnu::noinline]] word kernel_read(word const* a, std::size_t n) noexcept {
-    constexpr std::size_t partial_sums = 32;
+    constexpr std::size_t partial_sums = 16;
     word sums[partial_sums] = {};
     std::size_t i = 0;
     for (; i + partial_sums <= n; i += partial_sums) {

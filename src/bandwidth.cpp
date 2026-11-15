@@ -31,10 +31,23 @@ using word = std::uint64_t;
 
 // The kernels are not inlined, so every pass is a separate call. run_pass consumes the result of read and makes
 // the stores of write and copy observable, so that the compiler can neither merge nor drop passes.
+// The sum only consumes the loads. Independent partial sums avoid a single chain of dependent adds, which would limit
+// the speed in the caches instead of the loads; the compiler vectorizes them into several independent vector sums.
 [[gnu::noinline]] word kernel_read(word const* a, std::size_t n) noexcept {
+    constexpr std::size_t partial_sums = 32;
+    word sums[partial_sums] = {};
+    std::size_t i = 0;
+    for (; i + partial_sums <= n; i += partial_sums) {
+        for (std::size_t j = 0; j < partial_sums; ++j) {
+            sums[j] += a[i + j];
+        }
+    }
     word sum = 0;
-    for (std::size_t i = 0; i < n; ++i) {
+    for (; i < n; ++i) {
         sum += a[i];
+    }
+    for (auto s : sums) {
+        sum += s;
     }
     return sum;
 }
